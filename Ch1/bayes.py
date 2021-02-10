@@ -58,7 +58,7 @@ class Search():
         cv.putText(self.img, '2', 
                    (SA2_CORNERS[0] +3, SA2_CORNERS[1] + 15), 
                     cv.FONT_HERSHEY_PLAIN, 1, 0)
-        
+
         cv.rectangle(self.img, (SA3_CORNERS[0], SA3_CORNERS[1]), 
                     (SA3_CORNERS[2], SA3_CORNERS[3]), (0, 0, 0), 1)
         cv. putText(self.img, '3', 
@@ -75,3 +75,46 @@ class Search():
         cv.imshow('Search Area', self.img)
         cv.moveWindow('Search Area', 750, 10)
         cv.waitKey(500)
+
+    def sailor_final_location(self, num_search_areas):
+        """Return the actual x,y location of the missing sailor."""
+        # Find sailor coordinates with respect to any Search Area subarray.
+        self.sailor_actual[0] = np.random.choice(self.sa1.shape[1], 1)
+        self.sailor_actual[1] = np.random.choice(self.sa1.shape[0], 1)
+
+        area = int(random.triangular(1, num_search_areas + 1))
+
+        if area == 1:
+            x = self.sailor_actual[0] + SA1_CORNERS[0]
+            y = self.sailor_actual[1] + SA1_CORNERS[1]
+            self.area_actual = 1
+        elif area == 2:
+            x = self.sailor_actual[0] + SA2_CORNERS[0]
+            y = self.sailor_actual[1] + SA2_CORNERS[1]
+            self.area_actual = 2
+        elif area == 3:
+            x = self.sailor_actual[0] + SA3_CORNERS[0]
+            y = self.sailor_actual[1] + SA3_CORNERS[1]
+            self.area_actual = 3
+        return x, y
+
+    def calc_search_effectiveness(self):
+        """Set decimal search effectiveness value per search area."""
+        self.sep1 = random.uniform(0.2, 0.9)
+        self.sep2 = random.uniform(0.2, 0.9)
+        self.sep3 = random.uniform(0.2, 0.9)
+
+    def conduct_search(self, area_num, area_array, effecitveness_prob):
+        """Return search results and list of searched coordinates."""
+        local_y_range = range(area_array.shape[0])
+        local_x_range = range(area_array.shape[1])
+        coords = list(itertools.product(local_x_range, local_y_range))
+        random.shuffle(coords)
+        coords = list(itertools.product(local_x_range, local_y_range))
+        random.shuffle(coords)
+        coords = coords[:int((len(coords) * effecitveness_prob))]
+        loc_actual = (self.sailor_actual[0], self.sailor_actual[1])
+        if area_num == self.area_actual and loc_actual in coords:
+            return 'Found in Area {}'.format(area_num), coords
+        else:
+            return 'Not Found', coords
