@@ -2,7 +2,7 @@ import sys
 import random
 import itertools
 import numpy as numpy
-import cv2 as cv2
+import cv2 as cv
 
 MAP_FILE = 'cape_python.png'
 
@@ -17,7 +17,7 @@ class Search():
         self.name = name
         self.img = cv.imread(MAP_FILE, cv.IMREAD_COLOR)
         if self.img is None:
-            print("Could not load map file OP".format(MAP_FILE), file=sys.sterr)
+            print("Could not load map file OP".format(MAP_FILE), file=sys.stderr)
             sys.exit(1)
 
         self.area_actual = 0
@@ -47,8 +47,7 @@ class Search():
         cv.putText(self.img, '50 Nautical Miles', (71, 370), 
                    cv.FONT_HERSHEY_PLAIN, 1, (0, 0, 0)) 
 
-        cv.rectangle(self.img, (SA1_CORNERS[0], SA1_CORNERS[1]),
-                                SA1_CORNERS[2], SA1_CORNERS[3], (0, 0, 0), 1)
+        cv.rectangle(self.img, (SA1_CORNERS[0], SA1_CORNERS[1]), (SA1_CORNERS[2], SA1_CORNERS[3]), (0, 0, 0), 1)
         cv.putText(self.img, '1', 
                    (SA1_CORNERS[0] + 3, SA1_CORNERS[1] + 15) ,
                    cv.FONT_HERSHEY_PLAIN, 1, 0)
@@ -163,70 +162,70 @@ def main():
             sys.exit()
 
         #1
-    elif choice == "1":
-        results_1, coods_1 = app.conduct_search(1, app.sa1, app.sep1)
-        results_2, coods_2 = app.conduct_search(1, app.sa1, app.sep1)
-        # 2
-        app.sep1 = (len(set(coords_1  + coords_2))) / (len(app.sa1)**2)
-        app.sep2 = 0
-        app.sep3 = 0
+        elif choice == "1":
+            results_1, coods_1 = app.conduct_search(1, app.sa1, app.sep1)
+            results_2, coods_2 = app.conduct_search(1, app.sa1, app.sep1)
+            # 2
+            app.sep1 = (len(set(coords_1  + coords_2))) / (len(app.sa1)**2)
+            app.sep2 = 0
+            app.sep3 = 0
 
-    elif choice == "2":
-        results_1, coods_1 = app.conduct_search(2, app.sa2, app.sep2)
-        results_2, coods_2 = app.conduct_search(2, app.sa2, app.sep2)
-        app.sep1 = 0
-        app.sep2 = (len(set(coords_1  + coords_2))) / (len(app.sa2)**2)
-        app.sep3 = 0
+        elif choice == "2":
+            results_1, coods_1 = app.conduct_search(2, app.sa2, app.sep2)
+            results_2, coods_2 = app.conduct_search(2, app.sa2, app.sep2)
+            app.sep1 = 0
+            app.sep2 = (len(set(coords_1  + coords_2))) / (len(app.sa2)**2)
+            app.sep3 = 0
 
-    elif choice == "3":
-        results_1, coods_1 = app.conduct_search(3, app.sa3, app.sep3)
-        results_2, coods_2 = app.conduct_search(3, app.sa3, app.sep3)
-        app.sep1 = 0
-        app.sep2 = 0
-        app.sep3 = (len(set(coords_1  + coords_2))) / (len(app.sa3)**2)        
-        # 3
-    elif choice == "4":
-        results_1, coods_1 = app.conduct_search(1, app.sa1, app.sep1)
-        results_2, coods_2 = app.conduct_search(2, app.sa2, app.sep2)
-        app.sep3 = 0
+        elif choice == "3":
+            results_1, coods_1 = app.conduct_search(3, app.sa3, app.sep3)
+            results_2, coods_2 = app.conduct_search(3, app.sa3, app.sep3)
+            app.sep1 = 0
+            app.sep2 = 0
+            app.sep3 = (len(set(coords_1  + coords_2))) / (len(app.sa3)**2)        
+            # 3
+        elif choice == "4":
+            results_1, coods_1 = app.conduct_search(1, app.sa1, app.sep1)
+            results_2, coods_2 = app.conduct_search(2, app.sa2, app.sep2)
+            app.sep3 = 0
 
-    elif choice == "5":
-        results_1, coods_1 = app.conduct_search(1, app.sa3, app.sep1)
-        results_2, coods_2 = app.conduct_search(3, app.sa3, app.sep3)
-        app.sep2 = 0
-    elif choice == "6":
-        results_1, coods_1 = app.conduct_search(2, app.sa3, app.sep2)
-        results_2, coods_2 = app.conduct_search(3, app.sa3, app.sep3)
-        app.sep1 = 0
-    # 4
-    elif choice == "7":
-        main()
+        elif choice == "5":
+            results_1, coods_1 = app.conduct_search(1, app.sa3, app.sep1)
+            results_2, coods_2 = app.conduct_search(3, app.sa3, app.sep3)
+            app.sep2 = 0
+        elif choice == "6":
+            results_1, coods_1 = app.conduct_search(2, app.sa3, app.sep2)
+            results_2, coods_2 = app.conduct_search(3, app.sa3, app.sep3)
+            app.sep1 = 0
+        # 4
+        elif choice == "7":
+            main()
 
-    else:
-        print("\nSorry, but that isn't a valid choice.", file=sys.stderr)
-        continue
+        else:
+            print("\nSorry, but that isn't a valid choice.", file=sys.stderr)
+            continue
 
-    app.revise_target_probs() # Use bayes' rule to update target probs.
+        app.revise_target_probs() # Use bayes' rule to update target probs.
 
-    print("\nSearch {} Results 1 = {}"
-        .format(search_num, results_1),file=sys.stderr)
-    print("Search {} Results 2 = {}\n"
-        .format(search_num, results_2), file=sys.stderr)
-    print("Search {} Effectiveness (3):".format(search_num))
-    print("E1 = {:.3f}, E2 = {:.3f}, E3 = {:.3f}"
-        .format(app.sep1, app.sep2, app.sep3))
+        print("\nSearch {} Results 1 = {}"
+            .format(search_num, results_1),file=sys.stderr)
+        print("Search {} Results 2 = {}\n"
+            .format(search_num, results_2), file=sys.stderr)
+        print("Search {} Effectiveness (3):".format(search_num))
+        print("E1 = {:.3f}, E2 = {:.3f}, E3 = {:.3f}"
+            .format(app.sep1, app.sep2, app.sep3))
 
-    if results_1 == 'Not Found' and results_2 == 'Not Found':
-        print("\nNew Target Probablities (P) for Search {}:"
-            .format(search_num + 1))
-        print("P1 = {:.3f}, P2 = {:.3f}, P3 = {:.3f}"
-            .format(app.p1, app.p2, app.p3))
-    else:
-        cv.circle(app.img, (sailor_x, sailor_y), 3, (255, 0, 0), -1)
-        cv.imshow('Search Area', app.img)
-        cvwaitKey(1500)
-        main()
-    search_num += 1
+        if results_1 == 'Not Found' and results_2 == 'Not Found':
+            print("\nNew Target Probablities (P) for Search {}:"
+                .format(search_num + 1))
+            print("P1 = {:.3f}, P2 = {:.3f}, P3 = {:.3f}"
+                .format(app.p1, app.p2, app.p3))
+        else:
+            cv.circle(app.img, (sailor_x, sailor_y), 3, (255, 0, 0), -1)
+            cv.imshow('Search Area', app.img)
+            cvwaitKey(1500)
+            main()
+        search_num += 1
 
 if __name__ == '__main__':
     main() 
