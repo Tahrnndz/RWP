@@ -1,7 +1,7 @@
 import sys
 import random
 import itertools
-import numpy as numpy
+import numpy as np
 import cv2 as cv
 
 MAP_FILE = 'cape_python.png'
@@ -17,11 +17,11 @@ class Search():
         self.name = name
         self.img = cv.imread(MAP_FILE, cv.IMREAD_COLOR)
         if self.img is None:
-            print("Could not load map file OP".format(MAP_FILE), file=sys.stderr)
+            print("Could not load map file {}".format(MAP_FILE), file=sys.stderr)
             sys.exit(1)
 
         self.area_actual = 0
-        self.sailor_actual = [0,0] # As "local" coods within search area
+        self.sailor_actual = [0, 0] # As "local" coods within search area
 
         self.sa1 = self.img[SA1_CORNERS[1] : SA1_CORNERS[3],
                             SA1_CORNERS[0] : SA1_CORNERS[2]]
@@ -53,7 +53,7 @@ class Search():
                    cv.FONT_HERSHEY_PLAIN, 1, 0)
 
         cv.rectangle(self.img, (SA2_CORNERS[0], SA2_CORNERS[1]),
-                   (SA2_CORNERS[2], SA2_CORNERS[3], (0, 0, 0), 1))
+                   (SA2_CORNERS[2], SA2_CORNERS[3]), (0, 0, 0), 1)
         cv.putText(self.img, '2', 
                    (SA2_CORNERS[0] +3, SA2_CORNERS[1] + 15), 
                     cv.FONT_HERSHEY_PLAIN, 1, 0)
@@ -109,8 +109,7 @@ class Search():
         local_x_range = range(area_array.shape[1])
         coords = list(itertools.product(local_x_range, local_y_range))
         random.shuffle(coords)
-        coords = list(itertools.product(local_x_range, local_y_range))
-        random.shuffle(coords)
+        
         coords = coords[:int((len(coords) * effecitveness_prob))]
         loc_actual = (self.sailor_actual[0], self.sailor_actual[1])
         if area_num == self.area_actual and loc_actual in coords:
@@ -149,8 +148,8 @@ def main():
     app.draw_map(last_known=(160, 290))
     sailor_x, sailor_y = app.sailor_final_location(num_search_areas=3)
     print("-" * 65)
-    print("\nInitial Targe (P) Probablities:")
-    print("P1 = {:.3f}, P2 = {:.3f}, P3 = {:.3f}".format(app.p1, app.pd, app.p3))
+    print("\nInitial Target (P) Probablities:")
+    print("P1 = {:.3f}, P2 = {:.3f}, P3 = {:.3f}".format(app.p1, app.p2, app.p3))
     search_num = 1
 
     while True:
@@ -163,39 +162,39 @@ def main():
 
         #1
         elif choice == "1":
-            results_1, coods_1 = app.conduct_search(1, app.sa1, app.sep1)
-            results_2, coods_2 = app.conduct_search(1, app.sa1, app.sep1)
+            results_1, coords_1 = app.conduct_search(1, app.sa1, app.sep1)
+            results_2, coords_2 = app.conduct_search(1, app.sa1, app.sep1)
             # 2
             app.sep1 = (len(set(coords_1  + coords_2))) / (len(app.sa1)**2)
             app.sep2 = 0
             app.sep3 = 0
 
         elif choice == "2":
-            results_1, coods_1 = app.conduct_search(2, app.sa2, app.sep2)
-            results_2, coods_2 = app.conduct_search(2, app.sa2, app.sep2)
+            results_1, coords_1 = app.conduct_search(2, app.sa2, app.sep2)
+            results_2, coords_2 = app.conduct_search(2, app.sa2, app.sep2)
             app.sep1 = 0
             app.sep2 = (len(set(coords_1  + coords_2))) / (len(app.sa2)**2)
             app.sep3 = 0
 
         elif choice == "3":
-            results_1, coods_1 = app.conduct_search(3, app.sa3, app.sep3)
-            results_2, coods_2 = app.conduct_search(3, app.sa3, app.sep3)
+            results_1, coords_1 = app.conduct_search(3, app.sa3, app.sep3)
+            results_2, coords_2 = app.conduct_search(3, app.sa3, app.sep3)
             app.sep1 = 0
             app.sep2 = 0
             app.sep3 = (len(set(coords_1  + coords_2))) / (len(app.sa3)**2)        
             # 3
         elif choice == "4":
-            results_1, coods_1 = app.conduct_search(1, app.sa1, app.sep1)
-            results_2, coods_2 = app.conduct_search(2, app.sa2, app.sep2)
+            results_1, coords_1 = app.conduct_search(1, app.sa1, app.sep1)
+            results_2, coords_2 = app.conduct_search(2, app.sa2, app.sep2)
             app.sep3 = 0
 
         elif choice == "5":
-            results_1, coods_1 = app.conduct_search(1, app.sa3, app.sep1)
-            results_2, coods_2 = app.conduct_search(3, app.sa3, app.sep3)
+            results_1, coords_1 = app.conduct_search(1, app.sa3, app.sep1)
+            results_2, coords_2 = app.conduct_search(3, app.sa3, app.sep3)
             app.sep2 = 0
         elif choice == "6":
-            results_1, coods_1 = app.conduct_search(2, app.sa3, app.sep2)
-            results_2, coods_2 = app.conduct_search(3, app.sa3, app.sep3)
+            results_1, coords_1 = app.conduct_search(2, app.sa3, app.sep2)
+            results_2, coords_2 = app.conduct_search(3, app.sa3, app.sep3)
             app.sep1 = 0
         # 4
         elif choice == "7":
@@ -211,7 +210,7 @@ def main():
             .format(search_num, results_1),file=sys.stderr)
         print("Search {} Results 2 = {}\n"
             .format(search_num, results_2), file=sys.stderr)
-        print("Search {} Effectiveness (3):".format(search_num))
+        print("Search {} Effectiveness (E):".format(search_num))
         print("E1 = {:.3f}, E2 = {:.3f}, E3 = {:.3f}"
             .format(app.sep1, app.sep2, app.sep3))
 
@@ -221,9 +220,9 @@ def main():
             print("P1 = {:.3f}, P2 = {:.3f}, P3 = {:.3f}"
                 .format(app.p1, app.p2, app.p3))
         else:
-            cv.circle(app.img, (sailor_x, sailor_y), 3, (255, 0, 0), -1)
+            cv.circle(app.img, (sailor_x[0], sailor_y[0]), 3, (255, 0, 0), -1)
             cv.imshow('Search Area', app.img)
-            cvwaitKey(1500)
+            cv.waitKey(1500)
             main()
         search_num += 1
 
